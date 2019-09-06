@@ -1,0 +1,562 @@
+--drop schema new_timelines cascade ;
+
+create schema new_timelines;
+
+CREATE TABLE new_timelines.rol (
+  name varchar(50) primary key
+);
+comment on table new_timelines.rol is 'rol del usuario ';
+comment on column new_timelines.rol.name is  'nombre del rol especifico ';
+--drop table new_timelines."user";
+CREATE TABLE new_timelines.user (
+  id_user int PRIMARY KEY ,
+  login varchar(255) NOT NULL unique,
+  password varchar(60) NOT NULL,
+  email varchar(254) NOT NULL unique,
+  activated int,
+  lang_key varchar(6) NOT NULL,
+  image_url varchar(256),
+  activation_key varchar(20),
+  reset_key varchar(20),
+  reset_date date
+);
+comment on table new_timelines."user" is 'usuario del proyecto';
+comment on column new_timelines."user".id_user  is 'primary key ';
+comment on column new_timelines."user".login is 'iniciar secion en el aplicativo';
+comment on column new_timelines."user".password  is 'contraseña del usuario ';
+comment on column new_timelines."user".email  is 'correro electronico del usuario ';
+comment on column new_timelines."user".activated  is 'activacion del usuario ';
+comment on column new_timelines."user".lang_key  is 'ES "Español"';
+comment on column new_timelines."user".image_url  is 'imagen del usuario ';
+comment on column new_timelines."user".reset_key  is 'null';
+comment on column new_timelines."user".reset_date  is 'null ';
+
+
+CREATE TABLE new_timelines.user_rol (
+  name_rol varchar(50) NOT NULL,
+  id_user int NOT NULL,
+  PRIMARY KEY (name_rol,id_user),
+  CONSTRAINT FK_name FOREIGN KEY (name_rol) REFERENCES new_timelines.rol(name),
+  CONSTRAINT FK_rol FOREIGN KEY (id_user) REFERENCES new_timelines.user (id_user)
+);
+comment on table new_timelines."user_rol"  is 'datos del usuario ';
+comment on column new_timelines."user_rol". name_rol is 'forani key  ';
+comment on column new_timelines."user_rol".id_user  is 'forani key ';
+
+CREATE TABLE new_timelines.type_document (
+  id_type_document int PRIMARY KEY ,
+  initial varchar(10) NOT NULL UNIQUE,
+  name_document varchar(100) NOT NULL UNIQUE,
+  state varchar(40) NOT NULL
+);
+comment on table new_timelines."type_document" is 'tipo de documento del usuario ';
+comment on column new_timelines.type_document.id_type_document is 'id del tipo de documento';
+comment on column new_timelines.type_document.initial is 'initial de tipo de documento CC,TI,CE';
+comment on  column new_timelines.type_document.name_document is 'nombre del documento ';
+comment on column new_timelines.type_document.state is 'estado activo o inactivo ';
+--drop table new_timelines.client;
+CREATE TABLE new_timelines.client (
+  id_client int primary key,
+  number_document varchar(50) DEFAULT NULL,
+  first_name varchar(50) not null,
+  second_name varchar(50),
+  first_lastname varchar(50) not null,
+  second_lastname varchar(50),
+  id_user int  not null,
+  id_type_document int not null,
+  constraint fk_id_user foreign key (id_user) references new_timelines.user (id_user),
+  constraint fk_id_type_document foreign key (id_type_document) references new_timelines.type_document (id_type_document)
+);
+comment on table new_timelines.client is 'clientes del proyecto ';
+comment on column new_timelines.client.id_user is 'id del cliente ';
+comment on column new_timelines.client.number_document is 'numero de documento del usuario';
+comment on column new_timelines.client.id_type_document is 'tipo de documento del usuario';
+comment on column new_timelines.client.first_name is 'primer nombre del usuario';
+comment on column new_timelines.client.second_name is 'segundo nombre del usuario';
+comment on column new_timelines.client.first_lastname is 'primer apellido del usuario';
+comment on column new_timelines.client.second_lastname is 'segunfo apellido del usuario';
+comment on column new_timelines.client.id_user is 'forani key';
+
+create table new_timelines.instructor (
+id_instructor int  primary key ,
+state varchar (40) not null,
+id_client int not null ,
+constraint fk_client foreign key (id_client) references new_timelines.client(id_client)
+);
+comment on table new_timelines.instructor is 'instructores del proyecto ';
+comment on column new_timelines.instructor.id_instructor is 'id del instructor ';
+comment on column new_timelines.instructor.state is 'estado del instructor activo o inactivo';
+comment on column new_timelines.instructor.id_client is 'forani key ';
+
+create table new_timelines.area (
+id_area serial primary key ,
+area_name varchar (40) not null unique,
+state varchar (40) not null,
+log_url varchar (1000)
+);
+comment on table new_timelines.area is 'area del programa';
+comment on column new_timelines.area.id_area  is 'id del area del programa ';
+comment on column new_timelines.area.area_name  is 'nombre del area del programa ';
+comment on column new_timelines.area.state  is 'estado del programa activo o inactivo ';
+comment on column new_timelines.area.log_url is 'imagen del programa ';
+
+create table new_timelines.area_instructor(
+id_area_instructor int  primary key ,
+state varchar (40) not null,
+id_area int null,
+id_instructor int not null,
+constraint fk_area foreign key (id_area) references new_timelines.area (id_area),
+constraint fk_instructor foreign key (id_instructor) references new_timelines.instructor (id_instructor)
+);
+comment on table new_timelines.area_instructor is 'area asignada al instructor ';
+comment on column new_timelines.area_instructor.id_area_instructor is 'id del area asignada al instructor';
+comment on column new_timelines.area_instructor.state is 'stado del area activo inactivo';
+comment on column new_timelines.area_instructor.id_area is 'forani key';
+comment on column new_timelines.area_instructor.id_instructor is 'forani key ';
+
+create table new_timelines.day(
+id_day int primary key,
+day_name varchar (40) not null unique,
+state varchar (40) not null
+);
+comment on table new_timelines.day is 'dia del programa';
+comment on column new_timelines.day.id_day is 'idn del dia del proyecto ';
+comment on column new_timelines.day.day_name is 'forani key ';
+comment on column new_timelines.day.state  is 'estado del dia activo inactivo ';
+
+create table new_timelines.workingday_instructor(
+id_workingday_instructor int primary key ,
+name_working_day varchar (80) not null unique,
+description varchar (200) not null,
+state varchar (40) not null
+);
+comment on  table new_timelines.workingday_instructor is 'jornada de trabajo del instructor ';
+comment on column new_timelines.workingday_instructor.id_workingday_instructor  is 'id de la jornada del instructor ';
+comment on column new_timelines.workingday_instructor.name_working_day  is 'nombre del dia de trabajo ';
+comment on column new_timelines.workingday_instructor.description  is 'descripcion de la jornada de trabajo ';
+comment on column new_timelines.workingday_instructor.state  is 'estado de la jornada activo o inactivo';
+
+create table new_timelines.day_workingday(
+id_day_workingday int  primary key ,
+start_time int  not null,
+end_time int  not null,
+id_workingday_instructor int  not null,
+id_day int  not null,
+constraint fk_workingday_instructor foreign key (id_workingday_instructor) references new_timelines.workingday_instructor (id_workingday_instructor),
+constraint fk_day foreign key (id_day) references new_timelines.day (id_day)
+);
+comment on table new_timelines.day_workingday is 'jonada de trabajo ';
+comment on column new_timelines.day_workingday.id_workingday_instructor is 'id de jornada de trabajo ';
+comment on column new_timelines.day_workingday.start_time is 'hora de inicio ';
+comment on column new_timelines.day_workingday.end_time is 'hora de salida ';
+comment on column new_timelines.day_workingday.id_workingday_instructor is 'forani key ';
+comment on column new_timelines.day_workingday.id_day is 'forani key ';
+
+
+create table new_timelines.link(
+id_link int primary key ,
+link_type varchar (40) not null unique,
+hours int not null,
+state varchar (40) not null
+);
+comment on  table new_timelines.link is 'lin o vinculaciones del proyecto ' ;
+comment on column new_timelines.link.id_link is 'id del vinculo o link ';
+comment on column new_timelines.link.link_type is 'tipo de vinculacion ';
+comment on column new_timelines.link.hours is 'hora del proyecto  ';
+comment on column new_timelines.link.state is 'estado activo o inactivo ';
+
+create table new_timelines.year (
+id_year int  primary key,
+number_year int  not null unique,
+state varchar (40) not null
+);
+comment on  table new_timelines.year is 'año del programa';
+comment on column  new_timelines.year.id_year is 'id del año ';
+comment on column  new_timelines.year.number_year is 'numero del año ';
+comment on column  new_timelines.year.state is 'estado del año activo o inactivo ';
+
+
+create table new_timelines.link_instructor(
+id_link_instructor int primary key ,
+start_time date not null,
+end_date date not null,
+id_year int not null,
+id_link int not null,
+id_instructor int not null,
+constraint fk_ye foreign key (id_year) references new_timelines.year (id_year),
+constraint k_li foreign key (id_link) references new_timelines.link (id_link),
+constraint k_inst foreign key (id_instructor) references new_timelines.instructor (id_instructor)
+);
+comment on table new_timelines.link_instructor is 'link o vinculacion del instructor ';
+comment on column new_timelines.link_instructor.id_instructor is 'forani key';
+comment on column new_timelines.link_instructor.start_time is 'fecha de inicio del programa ';
+comment on column new_timelines.link_instructor.end_date is 'fecha de fin del programa ';
+comment on column new_timelines.link_instructor.id_year is 'forani key';
+comment on column new_timelines.link_instructor.id_link is 'forani key';
+comment on column new_timelines.link_instructor.id_instructor is 'forani key';
+
+
+create table new_timelines.competition_availability (
+id_competition_availability int primary key ,
+id_workingday_instructor int not null,
+id_link_instructor int not null,
+constraint fk_compe foreign key (id_workingday_instructor) references new_timelines.workingday_instructor (id_workingday_instructor),
+constraint fk_link_instr foreign key (id_link_instructor) references new_timelines.link_instructor (id_link_instructor)
+);
+comment on table new_timelines.competition_availability is 'disponibilidad de las competecias ';
+comment on column new_timelines.competition_availability.id_competition_availability is 'id de la disponibilidad de las competencias ';
+comment on column new_timelines.competition_availability.id_workingday_instructor is 'forani key';
+comment on column new_timelines.competition_availability.id_link_instructor is 'forani key ';
+
+
+create table new_timelines.current_quarter(
+id_current_quarter int primary key ,
+scheduled_quarter int not null,
+start_date date not null,
+end_date date not null,
+state varchar (40) not null,
+id_year int not null,
+constraint fk_year foreign key (id_year) references new_timelines.year (id_year)
+);
+comment on table new_timelines.current_quarter is 'trimestre actual del programa ';
+comment on column new_timelines.current_quarter.id_current_quarter is 'id del trimestre ';
+comment on column new_timelines.current_quarter.scheduled_quarter is 'horario del trimestre ';
+comment on column new_timelines.current_quarter.start_date is 'fecha de inicio del trimestre ';
+comment on column new_timelines.current_quarter.end_date is 'fecha de fin del trimestre ';
+comment on column new_timelines.current_quarter.state is 'estado activo o inactivo ';
+comment on column new_timelines.current_quarter.id_year is 'forani key ';
+
+CREATE TABLE new_timelines.level_formation (
+  id_level_formation int primary key,
+  level varchar(80) NOT NULL unique,
+  state varchar(40) NOT NULL
+);
+comment on table new_timelines.level_formation is 'nivel de formacion del programa ';
+comment on column new_timelines.level_formation.id_level_formation is 'id del nivel de formacion ';
+comment on column new_timelines.level_formation.level is 'nivel de formacion ';
+comment on column new_timelines.level_formation.state is 'estado de la formacion activo o inactivo ';
+
+
+CREATE TABLE new_timelines.program (
+  id_program int primary key,
+  code varchar(50) NOT NULL,
+  version varchar(40) NOT NULL,
+  name varchar(500) NOT NULL,
+  initial varchar(40) NOT NULL,
+  state int NOT NULL,
+  id_level_formation int not null,
+  constraint fk_level_formation foreign key (id_level_formation) references new_timelines.level_formation (id_level_formation)
+);
+comment on  table new_timelines.program is 'programa de formacion ';
+comment on column new_timelines.program.id_program is 'id del programa de formacion  ';
+comment on column new_timelines.program.code is 'codigo del programa de formacion ';
+comment on column new_timelines.program.version is 'vercion del mprograma ';
+comment on column new_timelines.program.name is 'nombre del programa de formacion ';
+comment on column new_timelines.program.initial is 'iniciales del programa ';
+comment on column new_timelines.program.state is 'estado del programa activo o inactivo ';
+comment on column new_timelines.program.id_level_formation is 'forani key';
+
+CREATE TABLE new_timelines.competition (
+  id_competition int primary key,
+  competition_code varchar(50) NOT NULL,
+  denomination varchar(40) NOT NULL,
+  id_program int not null,
+ constraint fk_id_program foreign key (id_program) references  new_timelines.program (id_program)
+);
+comment on table "new_timelines".competition is 'Competencia';
+comment on column "new_timelines".competition.id_competition is 'Id competencia';
+comment on column "new_timelines".competition.competition_code is 'Codigo de la competencia';
+comment on column "new_timelines".competition.denomination is 'Denominacion de la competencia';
+
+create table new_timelines.time_availability (
+id_time_availability int primary key ,
+id_competition int not null,
+id_link_instructor int not null,
+constraint fk_day_workingday foreign key (id_competition) references new_timelines.competition (id_competition),
+constraint fk_link_ins foreign key (id_link_instructor) references new_timelines.link_instructor (id_link_instructor)
+);
+comment on table "new_timelines".time_availability is 'tiempo de disponibilidad';
+comment on column "new_timelines".time_availability.id_time_availability is 'Id tiempo de disponibilidad';
+comment on column "new_timelines".time_availability.id_competition is 'ID  de la competencia';
+comment on column "new_timelines".time_availability.id_link_instructor is 'Id vinculacion instructor';
+
+create table new_timelines.schedule_version (
+id_schedule_version int primary key ,
+version_number varchar (40) not null,
+state varchar (40) not null,
+id_current_quarter int not null,
+constraint fk_current_quarter foreign key (id_current_quarter) references new_timelines.current_quarter (id_current_quarter)
+);
+comment on table "new_timelines".schedule_version is 'Version de horario';
+comment on column "new_timelines".schedule_version.id_schedule_version is 'Id Version de horario';
+comment on column "new_timelines".schedule_version.version_number is 'numero de version';
+comment on column "new_timelines".schedule_version.state is 'Estado';
+
+
+create table new_timelines.modality (
+id_modality int primary key,
+modality_name varchar (40) not null unique,
+color varchar (50) not null,
+state varchar (40) not null
+);
+comment on table "new_timelines".modality is 'Modalidad';
+comment on column "new_timelines".modality.id_modality is 'Id Modalidad';
+comment on column "new_timelines".modality.modality_name is 'Nombre de la modalidad';
+comment on column "new_timelines".modality.state is 'Estado';
+comment on column "new_timelines".modality.color is 'color';
+
+
+create table new_timelines.seat (
+id_seat int primary key,
+seat_name varchar(50) NOT NULL unique,
+direction varchar (400) not null,
+state varchar (40) not null
+);
+comment on table "new_timelines".seat is 'Sede';
+comment on column "new_timelines".seat.id_seat is 'Id sede';
+comment on column "new_timelines".seat.seat_name is 'Nombre de la sede';
+comment on column "new_timelines".seat.direction is 'Lugar de la sede';
+comment on column "new_timelines".seat.state is 'Estado';
+
+
+create table new_timelines.type_environment (
+id_type_environment int primary key,
+type varchar (50) not null unique,
+description varchar (100) not null,
+state varchar (40) not null
+);
+comment on table "new_timelines".type_environment is 'Tipo de entorno';
+comment on column "new_timelines".type_environment.id_type_environment is 'Tipo de entorno';
+comment on column "new_timelines".type_environment.type is 'Tipo';
+comment on column "new_timelines".type_environment.description is 'Descripcion de entorno';
+comment on column "new_timelines".type_environment.state is 'Estado de el entorno';
+
+CREATE TABLE new_timelines.ambient (
+  id_ambient int primary key,
+  room_number varchar(50) NOT NULL,
+  description varchar(1000) NOT NULL,
+  state varchar(40) NOT NULL,
+  limitation varchar(40) NOT NULL,
+  id_seat int not null,
+  id_type_environment int not null,
+  constraint fk_seat foreign key (id_seat) references new_timelines.seat (id_seat),
+  constraint fk_type_environment foreign key (id_type_environment) references new_timelines.type_environment (id_type_environment)
+);
+comment on table "new_timelines".ambient is 'Ambiebte';
+comment on column "new_timelines".ambient.id_ambient is 'Id ambiente';
+comment on column "new_timelines".ambient.room_number is 'Numero de salon';
+comment on column "new_timelines".ambient.id_seat is 'Id sede';
+comment on column "new_timelines".ambient.description is 'Descripvion de ambiente';
+comment on column "new_timelines".ambient.state is 'Estado de el entorno';
+comment on column "new_timelines".ambient.limitation is 'Limitacion ambiente';
+
+
+CREATE TABLE new_timelines.result_learning (
+  id_result_learning int primary key,
+  code_result varchar(40) NOT NULL,
+  denomination varchar(1000) NOT NULL,
+  id_competition int not null,
+  constraint fk_competition foreign key (id_competition) references new_timelines.competition (id_competition)
+);
+comment on table "new_timelines".result_learning is 'Resultado de aprendizaje';
+comment on column "new_timelines".result_learning.id_result_learning   is 'Id resultado de aprendizaje';
+comment on column "new_timelines".result_learning.code_result is 'Codigo de resultado';
+comment on column "new_timelines".result_learning.id_competition is 'Id competencia';
+
+create table new_timelines.planning(
+id_planning int primary key,
+code varchar (40) not null unique,
+date date not null,
+state varchar (40) not null
+);
+comment on table "new_timelines".planning is 'Planeacion';
+comment on column "new_timelines".planning.id_planning is 'Id planeacion';
+comment on column "new_timelines".planning.code is 'Codigo de planeacion';
+comment on column "new_timelines".planning.date is 'Fecha planeacion';
+comment on column "new_timelines".planning.state is 'Estado de la planeacion';
+
+create table new_timelines.limitation_environment(
+id_limitation_environment int primary key ,
+id_result_learning  int not null,
+id_ambient int not null,
+constraint fk_result_learning foreign key (id_result_learning) references new_timelines.result_learning (id_result_learning),
+constraint fk_ambient foreign key (id_ambient) references new_timelines.ambient (id_ambient)
+);
+comment on table "new_timelines".limitation_environment is 'Limitacion de ambiente';
+comment on column "new_timelines".limitation_environment.id_limitation_environment is 'Id limitacion ';
+comment on column "new_timelines".limitation_environment.id_result_learning is 'Id resultado de aprendizaje';
+comment on column "new_timelines".limitation_environment.id_ambient is 'Id limitacion de ambiente';
+
+CREATE TABLE new_timelines.state_course (
+  id_state_course int primary key,
+  name_state varchar(20) NOT NULL unique,
+  state varchar NOT NULL
+);
+comment on table "new_timelines".state_course is 'Estado de ficha';
+comment on column "new_timelines".state_course.id_state_course is 'Id estado de ficha';
+comment on column "new_timelines".state_course.name_state is 'Nombre estado de ficha';
+comment on column "new_timelines".state_course.state is ' estado de ficha';
+
+CREATE TABLE new_timelines.journey (
+  id_journey int primary key ,
+  initial_journey varchar(20) NOT NULL unique,
+  name_journey varchar(40) NOT NULL unique,
+  description varchar(100) NOT NULL,
+  image_url varchar(1000),
+  state varchar(40) NOT NULL
+  );
+comment on table "new_timelines".journey is 'Jornada';
+comment on column "new_timelines".journey.id_journey is 'Id de la jornada';
+comment on column "new_timelines".journey.name_journey is 'Nombre de la jornada';
+comment on column "new_timelines".journey.initial_journey is 'Sigla de la jornada';
+comment on column "new_timelines".journey.description is 'Descripcion de la jornada';
+comment on column "new_timelines".journey.image_url is 'Imagen de la jornada';
+comment on column "new_timelines".journey.state is 'Estado de la jornada';
+
+CREATE TABLE new_timelines.course (
+  id_course int primary key,
+  number_course varchar(100) NOT NULL unique,
+  start_time date NOT NULL,
+  end_date date NOT NULL,
+  route varchar(40) NOT NULL,
+  id_state_course int not null,
+  id_journey int not null,
+  id_program int not null,
+  constraint fk_sta_cour foreign key (id_state_course) references new_timelines.state_course (id_state_course),
+  constraint fk_jou foreign key (id_journey) references new_timelines.journey (id_journey),
+  constraint fk_progr foreign key (id_program) references new_timelines.program (id_program)
+);
+comment on table "new_timelines".course is 'Ficha';
+comment on column "new_timelines".course.id_course is 'Id Ficha';
+comment on column "new_timelines".course.number_course is 'Numero de la ficha';
+comment on column "new_timelines".course.id_program is 'Id programa';
+comment on column "new_timelines".course.start_time is 'Fecha de inicio de la ficha ';
+comment on column "new_timelines".course.end_date is 'Fecha de finalizacion de la ficha ';
+comment on column "new_timelines".course.route is 'Ruta de la ficha ';
+comment on column "new_timelines".course.id_state_course is 'Id estado de ficha ';
+
+ CREATE TABLE new_timelines.trimester (
+  id_trimester int primary key,
+  trimester_name int NOT NULL,
+  state varchar(40) NOT NULL,
+  id_journey int,
+  id_level_formation int,
+  constraint fk_journey_trim foreign key (id_journey) references new_timelines.journey (id_journey),
+  constraint fk_lev_for foreign key (id_level_formation) references new_timelines.level_formation (id_level_formation)
+);
+comment on table "new_timelines".trimester is 'Trimestre de estudio';
+comment on column "new_timelines".trimester.id_trimester is 'Id trimestre';
+comment on column "new_timelines".trimester.trimester_name is 'Nombre de el trimestre';
+comment on column "new_timelines".trimester.state is 'Estado de el trimestre';
+comment on column "new_timelines".trimester.id_level_formation is 'Id nivel de formacion (Tecnico, Tecnologo)';
+comment on column "new_timelines".trimester.id_journey is 'Id jornada';
+
+create table new_timelines.quarter_sheet (
+id_quarter_sheet int primary key,
+id_course int not null,
+id_trimester int not null,
+constraint fk_cou foreign key (id_course) references new_timelines.course (id_course),
+constraint fk_trimester foreign key (id_trimester) references new_timelines.trimester (id_trimester)
+);
+comment on table "new_timelines".quarter_sheet is 'trimestre';
+comment on column "new_timelines".quarter_sheet.id_quarter_sheet is 'Id trimestre';
+comment on column "new_timelines".quarter_sheet.id_course is 'Id curso';
+comment on column "new_timelines".quarter_sheet.id_trimester is 'Id trimestre';
+
+create table new_timelines.schedule (
+id_schedule int primary key ,
+start_time time not null,
+end_date time not null,
+id_quarter_sheet int not null,
+id_instructor  int not null,
+id_day  int not null,
+id_ambient  int not null,
+id_schedule_version  int not null,
+id_modality  int not null,
+constraint fk_quar_she foreign key (id_quarter_sheet) references new_timelines.quarter_sheet (id_quarter_sheet),
+constraint fk_inst foreign key (id_instructor) references new_timelines.instructor (id_instructor),
+constraint fk_dy foreign key (id_day) references new_timelines.day (id_day),
+constraint fk_sche_versi foreign key (id_schedule_version) references new_timelines.schedule_version (id_schedule_version),
+constraint fk_ambi foreign key (id_ambient) references new_timelines.ambient (id_ambient),
+constraint fk_moda foreign key (id_modality) references new_timelines.modality (id_modality)
+);
+comment on table "new_timelines".schedule is 'Horario';
+comment on column "new_timelines".schedule.start_time is 'Hora de inicio de la jornada';
+comment on column "new_timelines".schedule.end_date is 'Hora de finalizacion de la jornada';
+comment on column "new_timelines".schedule.id_quarter_sheet is 'Llave foranea';
+comment on column "new_timelines".schedule.id_instructor is 'Llave foranea';
+comment on column "new_timelines".schedule.id_day is 'Llave foranea';
+comment on column "new_timelines".schedule.id_ambient is 'Llave foranea';
+comment on column "new_timelines".schedule.id_schedule_version is 'Version de el horario';
+comment on column "new_timelines".schedule.id_modality is 'Llave foranea';
+
+
+create table new_timelines.project(
+id_project int primary key ,
+code varchar (40) not null unique,
+name varchar (500) not null,
+state varchar (40) not null,
+id_program int not null,
+constraint fk_prog foreign key (id_program) references new_timelines.program (id_program)
+);
+comment on table "new_timelines".project is 'foranea';
+comment on column "new_timelines".project.id_program is 'Id proyecto';
+comment on column "new_timelines".project.code is 'Codigo de el proyecto';
+comment on column "new_timelines".project.name is 'Nombre de el proyecto';
+comment on column "new_timelines".project.state is 'Estado de el proyecto';
+comment on column "new_timelines".project.id_program is 'Llave foranea';
+
+create table new_timelines.phase(
+id_phase int primary key ,
+name varchar (40) not null,
+state varchar (40) not null,
+id_project int not null,
+constraint fk_project foreign key (id_project) references new_timelines.project (id_project)
+);
+comment on table "new_timelines".phase is 'Fase de el proyecto';
+comment on column "new_timelines".phase.id_phase is 'Id fase de el proyecto';
+comment on column "new_timelines".phase.name is 'Nombre de la fase';
+comment on column "new_timelines".phase.state is 'Estado de la fase';
+comment on column "new_timelines".phase.id_project is 'Llave foranea';
+
+
+create table new_timelines.project_activity (
+id_project_activity int primary key ,
+activity_number int not null,
+activity_description varchar (400) not null,
+state varchar (40) not null,
+id_phase int not null,
+constraint fk_phase foreign key (id_phase) references new_timelines.phase (id_phase)
+);
+comment on table "new_timelines".project_activity is 'Actividad de el proyecto';
+comment on column "new_timelines".project_activity.id_project_activity is 'Id actividad de el proyecto';
+comment on column "new_timelines".project_activity.activity_number is 'numero de la actividad';
+comment on column "new_timelines".project_activity.activity_description is 'Descripcion  de la actividad';
+comment on column "new_timelines".project_activity.state is 'Estado de la actividad';
+
+
+
+create table new_timelines.quarter_planning(
+id_quarter_planning int primary key ,
+id_planning int,
+id_trimester int not null,
+id_result_learning int not null,
+constraint fk_trime foreign key (id_trimester) references new_timelines.trimester (id_trimester),
+constraint fk_resu_lear foreign key (id_result_learning) references new_timelines.result_learning (id_result_learning)
+);
+
+create table new_timelines.planning_activity(
+id_planning_activity int primary key,
+id_project_activity int not null,
+id_quarter_plannig int not null,
+constraint fk_proj_act foreign key (id_project_activity) references new_timelines.project_activity (id_project_activity),
+constraint fk_quarter_plannig foreign key (id_quarter_plannig) references new_timelines.quarter_planning (id_quarter_planning)
+);
+
+CREATE TABLE new_timelines.results_seen (
+  id_results_seen int primary key,
+  id_results_learning int  not null,
+  id_quarter_sheet int  not null,
+  constraint fk_res_lea foreign key (id_results_learning) references new_timelines.result_learning (id_result_learning),
+  constraint fk_quarter_sheet foreign key (id_quarter_sheet) references new_timelines.quarter_sheet (id_quarter_sheet)
+);
